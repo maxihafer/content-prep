@@ -11,7 +11,7 @@ import (
 
 const BufferSize int = 2097152
 const IvSize int = 16
-const HMACKeySize = 64
+const HMACKeySize = 32
 
 // Encrypt the stream using the given AES-CTR and SHA256-HMAC key
 func Encrypt(in io.ReadSeeker, out io.WriteSeeker, keyAes []byte, iv []byte, hmacKey []byte) error {
@@ -32,7 +32,7 @@ func Encrypt(in io.ReadSeeker, out io.WriteSeeker, keyAes []byte, iv []byte, hma
 	}
 
 	if len(hmacKey) != HMACKeySize {
-		return errors.New("invalid HMAC key length, expected 64 bytes")
+		return errors.New("invalid HMAC key length, expected 32 bytes")
 	}
 
 	hasher := HMAC.New(sha256.New, hmacKey)
