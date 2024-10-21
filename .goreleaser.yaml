@@ -11,7 +11,7 @@ builds:
 
 dockers:
   - image_templates:
-      - "{{ .Env.REGISTRY }}/{{ .ENV.IMAGE_NAME }}:{{ .Tag }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Tag }}-amd64"
     use: buildx
     dockerfile: Dockerfile
     build_flag_templates:
@@ -23,7 +23,7 @@ dockers:
       - "--label=org.opencontainers.image.source={{.GitURL}}"
       - "--platform=linux/amd64"
   - image_templates:
-      - "{{ .Env.REGISTRY }}/{{ .ENV.IMAGE_NAME }}:{{ .Tag }}-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Tag }}-arm64"
     use: buildx
     goarch: arm64
     build_flag_templates:
@@ -36,10 +36,10 @@ dockers:
       - "--platform=linux/arm64"
 
 docker_manifests:
-  - name_template: "{{ .Env.REGISTRY }}/{{ .ENV.IMAGE_NAME }}:{{ .Tag }}"
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Tag }}"
     image_templates:
-      - "{{ .Env.REGISTRY }}/{{ .ENV.IMAGE_NAME }}:{{ .Tag }}-amd64"
-      - "{{ .Env.REGISTRY }}/{{ .ENV.IMAGE_NAME }}:{{ .Tag }}-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Tag }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Tag }}-arm64"
 
 release:
   prerelease: auto
