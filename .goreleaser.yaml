@@ -1,0 +1,54 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    binary: content-prep
+
+dockers:
+  - image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .ENV.IMAGE_NAME }}:{{ .Tag }}-amd64"
+    use: buildx
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/amd64"
+  - image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .ENV.IMAGE_NAME }}:{{ .Tag }}-arm64"
+    use: buildx
+    goarch: arm64
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/arm64"
+
+docker_manifests:
+  - name_template: "{{ .Env.REGISTRY }}/{{ .ENV.IMAGE_NAME }}:{{ .Tag }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .ENV.IMAGE_NAME }}:{{ .Tag }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .ENV.IMAGE_NAME }}:{{ .Tag }}-arm64"
+
+release:
+  prerelease: auto
+
+
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
