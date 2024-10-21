@@ -12,6 +12,11 @@ build: dep
 	@echo "Building..."
 	go build -o dist/$(APP_NAME) main.go
 
+.PHONY: test
+test: dep
+	@echo "Running tests..."
+	go test -v ./...
+
 .PHONY: lint
 lint: $(LOCALBIN)/golangci-lint dep
 	@echo "Running golangci-lint version ${GOLANGCI_LINT_VERSION}..."

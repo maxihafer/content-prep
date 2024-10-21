@@ -51,8 +51,6 @@ func (s *ZipperTestSuite) SetupTest() {
 
 	s.destFile, err = os.Create(path.Join(s.testDir, "src.zip"))
 	s.Require().NoError(err)
-
-	s.T().Log("Running tests in: " + s.testDir)
 }
 
 func (s *ZipperTestSuite) TearDownTest() {

@@ -46,8 +46,6 @@ func (s *PackagerTestSuite) SetupSuite() {
 	var err error
 	s.testDir, err = os.MkdirTemp("", "packager-test-*")
 	s.Require().NoError(err)
-
-	s.T().Log("Running tests in: " + s.testDir)
 }
 
 func (s *PackagerTestSuite) TearDownSuite() {

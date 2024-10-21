@@ -38,7 +38,6 @@ func (s *ApplicationInfoTestSuite) TestMarshalXML() {
 
 	xmlBytes, err := xml.Marshal(ai)
 	s.Require().NoError(err)
-	s.T().Log(string(xmlBytes))
 
 	s.Require().Equal(data, xmlBytes)
 }

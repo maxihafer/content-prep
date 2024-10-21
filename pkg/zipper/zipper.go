@@ -2,14 +2,11 @@ package zipper
 
 import (
 	"archive/zip"
-	"content-prep/pkg/logger"
-	"context"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -19,7 +16,55 @@ func Zip(fsys fs.FS, out io.Writer) error {
 	zipper := zip.NewWriter(out)
 	defer zipper.Close()
 
-	return zipper.AddFS(fsys)
+	return addFs(zipper, fsys)
+}
+
+// We need to copypasta the AddFS method from the zip.Writer because it does not allow us to set the desired compression method
+func addFs(w *zip.Writer, fsys fs.FS) error {
+	return fs.WalkDir(fsys, ".", func(name string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		info, err := d.Info()
+		if err != nil {
+			return err
+		}
+
+		if !info.Mode().IsRegular() {
+			return errors.New("zip: cannot add non-regular file")
+		}
+
+		h, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+
+		h.Name = name
+		h.Method = zip.Store
+
+		fw, err := w.CreateHeader(h)
+		if err != nil {
+			return err
+		}
+
+		f, err := fsys.Open(name)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		_, err = io.Copy(fw, f)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func Unzip(archive *os.File, dest string) error {
@@ -78,80 +123,6 @@ func Unzip(archive *os.File, dest string) error {
 		if err != nil {
 			return err
 		}
-	}
-
-	return nil
-}
-
-func ZipDirectory(ctx context.Context, sourceDirectoryPath string, w io.Writer) error {
-	log := logger.FromContext(ctx).With("component", "zipper", "action", "zip")
-
-	fsys := os.DirFS(sourceDirectoryPath)
-
-	zipWriter := zip.NewWriter(w)
-	defer zipWriter.Close()
-
-	log.Info("compressing source directory", "source", sourceDirectoryPath)
-
-	return errors.Wrap(zipWriter.AddFS(fsys), "failed to add file system to zip writer")
-}
-
-func UnzipToDirectory(ctx context.Context, archiveFilePath, outputFolderPath string) error {
-	log := logger.FromContext(ctx).With("component", "zipper", "action", "unzip")
-
-	archiveFile, err := os.Open(archiveFilePath)
-	if err != nil {
-		return errors.Wrapf(err, "failed to open archive file")
-	}
-	defer archiveFile.Close()
-
-	archiveFileInfo, err := os.Stat(archiveFilePath)
-	if err != nil {
-		return errors.Wrapf(err, "failed to get archive file info")
-	}
-
-	zipReader, err := zip.NewReader(archiveFile, archiveFileInfo.Size())
-	if err != nil {
-		return errors.Wrapf(err, "failed to create zip reader")
-	}
-
-	log.Info("decompressing archive", "archive", archiveFilePath, "output", outputFolderPath)
-
-	for _, f := range zipReader.File {
-		filePath := path.Join(outputFolderPath, f.Name)
-		log.Info("extracting file", "file", f.Name, "path", filePath)
-
-		if !strings.HasPrefix(filePath, path.Clean(outputFolderPath)+string(os.PathSeparator)) {
-			return errors.Errorf("illegal file path: %s", filePath)
-		}
-		if f.FileInfo().IsDir() {
-			err = os.MkdirAll(filePath, os.ModePerm)
-			if err != nil {
-				return errors.Wrapf(err, "failed to create directory")
-			}
-			continue
-		}
-
-		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-			panic(err)
-		}
-
-		dstFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-		if err != nil {
-			panic(err)
-		}
-
-		fileInArchive, err := f.Open()
-		if err != nil {
-			panic(err)
-		}
-
-		if _, err := io.Copy(dstFile, fileInArchive); err != nil {
-			panic(err)
-		}
-
-		dstFile.Close()
-		fileInArchive.Close()
 	}
 
 	return nil
