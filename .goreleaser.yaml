@@ -12,6 +12,10 @@ builds:
 dockers:
   - image_templates:
       - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Tag }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-amd64"
+      {{- if not .Prerelease }}
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:stable-amd64"
+      {{- end }}
     use: buildx
     dockerfile: Dockerfile
     build_flag_templates:
@@ -24,6 +28,10 @@ dockers:
       - "--platform=linux/amd64"
   - image_templates:
       - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Tag }}-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-arm64"
+      {{- if not .Prerelease }}
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:stable-arm64"
+      {{- end }}
     use: buildx
     goarch: arm64
     build_flag_templates:
@@ -40,11 +48,19 @@ docker_manifests:
     image_templates:
       - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Tag }}-amd64"
       - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:{{ .Tag }}-arm64"
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:latest-arm64"
+  {{- if not .Prerelease }}
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:stable"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:stable-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.IMAGE_NAME }}:stable-arm64"
+  {{- end}}
 
 release:
   prerelease: auto
-
-
 
 changelog:
   sort: asc
