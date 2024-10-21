@@ -125,7 +125,10 @@ func UnzipToDirectory(ctx context.Context, archiveFilePath, outputFolderPath str
 			return errors.Errorf("illegal file path: %s", filePath)
 		}
 		if f.FileInfo().IsDir() {
-			os.MkdirAll(filePath, os.ModePerm)
+			err = os.MkdirAll(filePath, os.ModePerm)
+			if err != nil {
+				return errors.Wrapf(err, "failed to create directory")
+			}
 			continue
 		}
 

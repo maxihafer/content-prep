@@ -7,24 +7,11 @@ import (
 	"crypto/sha256"
 	"errors"
 	"io"
-
-	"github.com/sirupsen/logrus"
 )
 
 const BufferSize int = 2097152
 const IvSize int = 16
 const HMACKeySize = 64
-
-type loggingWriter struct {
-	w    io.Writer
-	mode string
-}
-
-func (l loggingWriter) Write(p []byte) (n int, err error) {
-	logrus.WithField("mode", l.mode).Info("Write:", p)
-
-	return l.w.Write(p)
-}
 
 // Encrypt the stream using the given AES-CTR and SHA256-HMAC key
 func Encrypt(in io.ReadSeeker, out io.WriteSeeker, keyAes []byte, iv []byte, hmacKey []byte) error {
