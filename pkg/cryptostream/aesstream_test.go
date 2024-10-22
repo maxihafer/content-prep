@@ -73,7 +73,7 @@ func (s *AESStreamTestSuite) SetupSuite() {
 
 	s.iv = []byte(strings.Repeat("i", 16))
 
-	s.hmacKey = []byte(strings.Repeat("h", 64))
+	s.hmacKey = []byte(strings.Repeat("h", 32))
 }
 
 func (s *AESStreamTestSuite) TestEncrypt() {
