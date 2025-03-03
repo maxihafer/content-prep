@@ -22,9 +22,7 @@ func init() {
 }
 
 var decryptIntuneWinCmd = &cobra.Command{
-	Use:     "decrypt-intunewin-package",
-	Aliases: []string{"decrypt"},
-
+	Use:     "decrypt",
 	Short:   "decrypts an intunewin package",
 	Example: "content-prep decrypt-intunewin-package --file /path/to/package.intunewin --output /path/to/output",
 	RunE: func(cmd *cobra.Command, args []string) error {

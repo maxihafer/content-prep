@@ -15,25 +15,24 @@ import (
 )
 
 func init() {
-	RootCmd.AddCommand(newIntuneWinCmd)
+	RootCmd.AddCommand(newCmd)
 
-	newIntuneWinCmd.Flags().StringP(config.KeySourceFolder, "p", "", "Path to the source folder")
-	_ = newIntuneWinCmd.MarkFlagRequired(config.KeySourceFolder)
-	_ = newIntuneWinCmd.MarkFlagDirname(config.KeySourceFolder)
-	newIntuneWinCmd.Flags().StringP(config.KeySetupFile, "s", "", "Path to the setup file (must be inside the source folder)")
-	_ = newIntuneWinCmd.MarkFlagRequired(config.KeySetupFile)
-	_ = newIntuneWinCmd.MarkFlagFilename(config.KeySetupFile)
-	newIntuneWinCmd.Flags().StringP(config.KeyOutputFolder, "o", "", "Path to the output folder")
-	_ = newIntuneWinCmd.MarkFlagRequired(config.KeyOutputFolder)
-	_ = newIntuneWinCmd.MarkFlagDirname(config.KeyOutputFolder)
+	newCmd.Flags().StringP(config.KeySourceFolder, "p", "", "Path to the source folder")
+	_ = newCmd.MarkFlagRequired(config.KeySourceFolder)
+	_ = newCmd.MarkFlagDirname(config.KeySourceFolder)
+	newCmd.Flags().StringP(config.KeySetupFile, "s", "", "Path to the setup file (must be inside the source folder)")
+	_ = newCmd.MarkFlagRequired(config.KeySetupFile)
+	_ = newCmd.MarkFlagFilename(config.KeySetupFile)
+	newCmd.Flags().StringP(config.KeyOutputFolder, "o", "", "Path to the output folder")
+	_ = newCmd.MarkFlagRequired(config.KeyOutputFolder)
+	_ = newCmd.MarkFlagDirname(config.KeyOutputFolder)
 
 }
 
-var newIntuneWinCmd = &cobra.Command{
-	Use:     "new-intunewin-package",
-	Aliases: []string{"new"},
+var newCmd = &cobra.Command{
+	Use:     "new",
 	Short:   "creates a new intunewin package from a setup file",
-	Example: "content-prep new-intunewin-package --path /path/to/folder --setupFile setup.exe --output /path/to/output",
+	Example: "content-prep new --path /path/to/folder --setupFile setup.exe --output /path/to/output",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 		log := logger.FromContext(ctx).With("component", "cli", "action", "new")
